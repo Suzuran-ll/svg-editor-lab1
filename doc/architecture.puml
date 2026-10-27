@@ -1,0 +1,48 @@
+@startuml
+title SVG CLI Phase 1 - Component Architecture
+skinparam componentStyle rectangle
+left to right direction
+
+component "main.ts\nComposition Root" as Main
+package "cli" {
+  component "Repl\nTokenizer / Arguments\nCommandDispatcher" as Cli
+}
+package "application" {
+  component "EditorApplication\nDocumentView" as App
+  interface "DocumentStore\nReadResult" as Store
+}
+package "commands" {
+  component "EditCommand / Concrete Commands\nCommandHistory / CommandResult" as Commands
+}
+package "domain" {
+  component "SvgDocument\nShape / Rect / Circle / Ellipse\nLine / Text / Group\nShapeFactory / Validation" as Domain
+}
+package "infrastructure" {
+  component "FileDocumentStore\nSvgCodec" as Infra
+}
+component "Node.js readline" as Readline <<external>>
+component "Node.js fs / path / crypto" as Fs <<external>>
+component "@xmldom/xmldom" as Xml <<external>>
+
+Main --> Cli : start
+Main --> App : compose
+Main --> Infra : inject adapter
+Cli --> App : request / view
+Cli --> Commands : construct commands
+Cli --> Readline : terminal input
+App --> Commands : execute / undo / redo
+App --> Domain : current document
+App --> Store : read / write via port
+Commands --> Domain : edit / clone
+Infra ..|> Store : implement
+Infra --> Domain : convert SVG / domain
+Infra --> Fs : confined atomic IO
+Infra --> Xml : parse / serialize
+
+note bottom of Cli
+  待重构：CommandDispatcher 的命令名注册表
+end note
+note bottom of Domain
+  待重构：ShapeFactory 的图形名到类映射
+end note
+@enduml
