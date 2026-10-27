@@ -16,8 +16,11 @@ export class Line extends Shape {
   }
   override clone(): Line { return this.copyStyles(new Line(this.id, this.number('x1'), this.number('y1'), this.number('x2'), this.number('y2'))); }
   static fromArguments(id: string, args: readonly string[]): Line {
-    const [x1, y1, x2, y2] = Validation.parameters(args, this.parameters);
-    return new Line(id, x1!, y1!, x2!, y2!);
+    const parsed = Validation.parametersWithPaint(args, this.parameters, 'stroke');
+    const [x1, y1, x2, y2] = parsed.values;
+    const shape = new Line(id, x1!, y1!, x2!, y2!);
+    if (parsed.paint !== undefined) shape.setAttribute('stroke', parsed.paint);
+    return shape;
   }
   static fromSvg(id: string, attrs: Readonly<Record<string, string>>): Line {
     const [x1, y1, x2, y2] = Validation.imported(attrs, this.parameters);

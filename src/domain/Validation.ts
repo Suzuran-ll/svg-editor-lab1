@@ -28,6 +28,16 @@ export class Validation {
     return args.map((value, index) => this.number(value, names[index]!));
   }
 
+  static parametersWithPaint(args: readonly string[], names: readonly string[], paint: 'fill' | 'stroke'): { values: readonly number[]; paint: string | undefined } {
+    if (args.length !== names.length && args.length !== names.length + 1) {
+      throw new Error(`expected ${names.length} or ${names.length + 1} arguments: ${names.join(' ')} [${paint}]`);
+    }
+    const values = this.parameters(args.slice(0, names.length), names);
+    const color = args[names.length];
+    if (color !== undefined && color.trim().length === 0) throw new Error(`${paint} must be nonempty`);
+    return { values, paint: color };
+  }
+
   static imported(attrs: Readonly<Record<string, string>>, names: readonly string[]): number[] {
     const allowed = new Set(['id', ...names, ...this.styles]);
     for (const key of Object.keys(attrs)) if (!allowed.has(key)) throw new Error(`unknown attribute: ${key}`);

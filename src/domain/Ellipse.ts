@@ -11,8 +11,11 @@ export class Ellipse extends Shape {
   }
   override clone(): Ellipse { return this.copyStyles(new Ellipse(this.id, this.number('cx'), this.number('cy'), this.number('rx'), this.number('ry'))); }
   static fromArguments(id: string, args: readonly string[]): Ellipse {
-    const [cx, cy, rx, ry] = Validation.parameters(args, this.parameters);
-    return new Ellipse(id, cx!, cy!, rx!, ry!);
+    const parsed = Validation.parametersWithPaint(args, this.parameters, 'fill');
+    const [cx, cy, rx, ry] = parsed.values;
+    const shape = new Ellipse(id, cx!, cy!, rx!, ry!);
+    if (parsed.paint !== undefined) shape.setAttribute('fill', parsed.paint);
+    return shape;
   }
   static fromSvg(id: string, attrs: Readonly<Record<string, string>>): Ellipse {
     const [cx, cy, rx, ry] = Validation.imported(attrs, this.parameters);

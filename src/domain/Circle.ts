@@ -11,8 +11,11 @@ export class Circle extends Shape {
   }
   override clone(): Circle { return this.copyStyles(new Circle(this.id, this.number('cx'), this.number('cy'), this.number('r'))); }
   static fromArguments(id: string, args: readonly string[]): Circle {
-    const [cx, cy, r] = Validation.parameters(args, this.parameters);
-    return new Circle(id, cx!, cy!, r!);
+    const parsed = Validation.parametersWithPaint(args, this.parameters, 'fill');
+    const [cx, cy, r] = parsed.values;
+    const shape = new Circle(id, cx!, cy!, r!);
+    if (parsed.paint !== undefined) shape.setAttribute('fill', parsed.paint);
+    return shape;
   }
   static fromSvg(id: string, attrs: Readonly<Record<string, string>>): Circle {
     const [cx, cy, r] = Validation.imported(attrs, this.parameters);

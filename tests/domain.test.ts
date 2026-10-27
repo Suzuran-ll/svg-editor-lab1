@@ -69,8 +69,28 @@ test('strict numeric parsing accepts finite decimal/exponents and rejects ambigu
   assert.throws(() => new Circle('c', 1, 2, -1), /nonnegative/);
   assert.throws(() => new Rect('r', 0, 0, -1, 1), /nonnegative/);
   assert.throws(() => new Ellipse('e', 0, 0, 1, -1), /nonnegative/);
-  assert.throws(() => ShapeFactory.create('rect', 'r', ['1']), /expected 4 arguments/);
+  assert.throws(() => ShapeFactory.create('rect', 'r', ['1']), /expected 4 or 5 arguments/);
   assert.throws(() => ShapeFactory.create('g', 'g', ['1']), /expected 0 arguments/);
+});
+
+test('create supports one optional fill or stroke while rejecting blank paint and excess arguments', () => {
+  const cases = [
+    ['rect', ['0', '0', '10', '20'], 'fill'],
+    ['circle', ['0', '0', '10'], 'fill'],
+    ['ellipse', ['0', '0', '10', '20'], 'fill'],
+    ['line', ['0', '0', '10', '20'], 'stroke'],
+  ] as const;
+  for (const [type, args, attribute] of cases) {
+    const plain = ShapeFactory.create(type, 'plain', args);
+    assert.equal(plain.getAttributes()[attribute], undefined);
+    const colored = ShapeFactory.create(type, 'colored', [...args, '#12ab34']);
+    assert.equal(colored.getAttributes()[attribute], '#12ab34');
+    assert.equal(colored.clone().getAttributes()[attribute], '#12ab34');
+    assert.throws(() => ShapeFactory.create(type, 'excess', [...args, 'red', 'blue']), /expected \d or \d arguments/);
+    for (const empty of ['', '  ']) {
+      assert.throws(() => ShapeFactory.create(type, 'empty', [...args, empty]), new RegExp(`${attribute} must be nonempty`));
+    }
+  }
 });
 
 test('attribute whitelist permits only each shape geometry, text content, and three styles', () => {

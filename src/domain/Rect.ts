@@ -12,8 +12,11 @@ export class Rect extends Shape {
   }
   override clone(): Rect { return this.copyStyles(new Rect(this.id, this.number('x'), this.number('y'), this.number('width'), this.number('height'))); }
   static fromArguments(id: string, args: readonly string[]): Rect {
-    const [x, y, width, height] = Validation.parameters(args, this.parameters);
-    return new Rect(id, x!, y!, width!, height!);
+    const parsed = Validation.parametersWithPaint(args, this.parameters, 'fill');
+    const [x, y, width, height] = parsed.values;
+    const shape = new Rect(id, x!, y!, width!, height!);
+    if (parsed.paint !== undefined) shape.setAttribute('fill', parsed.paint);
+    return shape;
   }
   static fromSvg(id: string, attrs: Readonly<Record<string, string>>): Rect {
     const [x, y, width, height] = Validation.imported(attrs, this.parameters);

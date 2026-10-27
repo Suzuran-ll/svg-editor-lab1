@@ -8,6 +8,7 @@ export abstract class EditCommand {
   private message = '';
 
   execute(current: SvgDocument): CommandResult {
+    if (this.after) throw new Error('command has already been executed');
     const working = current.clone();
     const message = this.apply(working);
     this.before = current.clone();

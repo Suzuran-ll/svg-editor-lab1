@@ -32,6 +32,18 @@ test('failed edits preserve redo and original geometry', () => {
   assert.equal(history.redo().document.find('r').getAttributes().x, '11');
 });
 
+test('reusing a successful command cannot overwrite snapshots already in history', () => {
+  const history = new CommandHistory();
+  const document = new SvgDocument();
+  document.add(ShapeFactory.create('rect', 'r', ['0', '0', '1', '1']));
+  const move = new MoveCommand('r', 1, 0);
+  const moved = history.execute(move, document).document;
+  assert.throws(() => history.execute(move, moved), /already been executed/);
+  assert.equal(history.undo().document.find('r').getAttributes().x, '0');
+  assert.throws(() => history.undo(), /nothing to undo/);
+  assert.equal(history.redo().document.find('r').getAttributes().x, '1');
+});
+
 test('successful new edit clears redo; IO clears and locks both stacks', () => {
   const history = new CommandHistory();
   let document = history.execute(new CreateCommand('g', 'g', []), new SvgDocument()).document;
