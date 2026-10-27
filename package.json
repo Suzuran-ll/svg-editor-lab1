@@ -1,0 +1,22 @@
+{
+  "name": "svg-editor-lab1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "cli": "npm run build --silent && node dist/src/main.js",
+    "test": "npm run build --silent && node --test dist/tests/*.test.js",
+    "check:architecture": "node scripts/check-architecture.mjs"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2"
+  }
+}
